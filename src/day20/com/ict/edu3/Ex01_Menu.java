@@ -4,7 +4,14 @@ import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
+import java.util.Enumeration;
 
+import javax.swing.AbstractAction;
+import javax.swing.AbstractButton;
 import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
@@ -14,7 +21,7 @@ import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JTextField;
 
-public class Ex01_Menu extends JFrame {
+public class Ex01_Menu extends JFrame implements ActionListener, ItemListener {
 	JPanel jp1, jp2, jp3,jp4,jp5;
 	JButton jb1,jb2;
 	JTextField jtf;
@@ -61,8 +68,8 @@ public class Ex01_Menu extends JFrame {
 		
 		jp4 = new JPanel();
 		bg3 = new ButtonGroup();
-		jrb8 = new JRadioButton("Small(80%)",true);
-		jrb9 = new JRadioButton("Medium(100%)");
+		jrb8 = new JRadioButton("Small(80%)");
+		jrb9 = new JRadioButton("Medium(100%)",true);
 		jrb10 = new JRadioButton("Large(120%)");
 		bg3.add(jrb8);
 		bg3.add(jrb9);
@@ -94,8 +101,93 @@ public class Ex01_Menu extends JFrame {
 		//setBounds(ds.width/2-300, ds.height/2-150, 600, 300);
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 		setVisible(true);
+		
+		jrb1.addItemListener(this);
+		jrb2.addItemListener(this);
+		jrb3.addItemListener(this);
+		jrb4.addItemListener(this);
+		jrb5.addItemListener(this);
+		jrb6.addItemListener(this);
+		jrb7.addItemListener(this);
+		jrb8.addItemListener(this);
+		jrb9.addItemListener(this);
+		jrb10.addItemListener(this);
+		
+		jb1.addActionListener(this);
+		jb2.addActionListener(this);
+		
+		
 	}
 	
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		JButton obj = (JButton)e.getSource();
+		if(obj==jb1) {
+			jtf.setText((int)(price) + "원");
+		}else if(obj==jb2) {
+			jtf.setText("");
+			jrb1.setSelected(true);
+			jrb4.setSelected(true);
+			jrb9.setSelected(true);
+		}
+		
+	}
+	
+	@Override
+	public void itemStateChanged(ItemEvent e) {
+		// bg1에 존재하는 요소들을 배열로 만든다.
+		Enumeration<AbstractButton>bg1_list = bg1.getElements();
+		while (bg1_list.hasMoreElements()) {
+			// bg1의 요소를 꺼내서 JRadioButton으로 형변환
+			AbstractButton abstractButton = (AbstractButton) bg1_list.nextElement();
+			JRadioButton jb = (JRadioButton)abstractButton;
+			if(jb.isSelected()) {
+				if(jb == jrb1) {
+					price = 15000;
+				}else if(jb == jrb2) {
+					price = 20000;
+				}else if(jb == jrb3) {
+					price = 30000;
+				}
+			}
+		}
+		
+		// bg2에 존재하는 요소들을 배열로 만든다.
+		Enumeration<AbstractButton>bg2_list = bg2.getElements();
+		while (bg2_list.hasMoreElements()) {
+			// bg2의 요소를 꺼내서 JRadioButton으로 형변환
+			AbstractButton abstractButton = (AbstractButton) bg2_list.nextElement();
+			JRadioButton jb = (JRadioButton)abstractButton;
+			if(jb.isSelected()) {
+				if(jb == jrb4) {
+					price += 500;
+				}else if(jb == jrb5) {
+					price += 1000;
+				}else if(jb == jrb6) {
+					price += 1500;
+				}else if(jb == jrb7) {
+					price += 2000;
+				}
+			}
+		}
+		
+		// bg3에 존재하는 요소들을 배열로 만든다.
+		Enumeration<AbstractButton>bg3_list = bg3.getElements();
+		while (bg3_list.hasMoreElements()) {
+			// bg3의 요소를 꺼내서 JRadioButton으로 형변환
+			AbstractButton abstractButton = (AbstractButton) bg3_list.nextElement();
+			JRadioButton jb = (JRadioButton)abstractButton;
+			if(jb.isSelected()) {
+				if(jb == jrb8) {
+					price *= 0.8;
+				}else if(jb == jrb9) {
+					price *= 1.0;
+				}else if(jb == jrb10) {
+					price *= 1.2;
+				}
+			}
+		}
+	}
 
 	public static void main(String[] args) {
 		new Ex01_Menu();
