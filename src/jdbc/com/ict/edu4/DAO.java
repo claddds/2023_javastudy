@@ -10,57 +10,55 @@ public class DAO {
 	Connection conn = null;
 	PreparedStatement pstm = null;
 	ResultSet rs = null;
-	int result = 0;
-
+	int result = 0 ;
+	
 	private static DAO dao = new DAO();
-
 	public static DAO getInstance() {
 		return dao;
 	}
-
-	// DB 접속 메서드
+	
+	// DB 접속 메서드 
 	public Connection getConnection() {
 		try {
 			Class.forName("oracle.jdbc.driver.OracleDriver");
-			String url = "jdbc:oracle:thin:@localhost:1521:xe";
+			String url ="jdbc:oracle:thin:@localhost:1521:xe";
 			String user = "c##ryuhyeji";
 			String password = "1111";
 			conn = DriverManager.getConnection(url, user, password);
 			return conn;
 		} catch (Exception e) {
-
 		}
 		return null;
 	}
-
+	
 	public ArrayList<VO> getSelectAll() {
-			try {
-				conn = getConnection();
-				String sql = "select * from 고객테이블";
-				pstm = conn.prepareStatement(sql);
-				rs = pstm.executeQuery();
-				ArrayList<VO> list = new ArrayList<>();
-				while (rs.next()) {
-					VO vo = new VO();
-					vo.set고객아이디(rs.getString(1));
-					vo.set고객이름(rs.getString(2));
-					vo.set나이(rs.getString(3));
-					vo.set등급(rs.getString(4));
-					vo.set직업(rs.getString(5));
-					vo.set적립금(rs.getString(6));
-					list.add(vo);
-				}
-				return list;
-			} catch (Exception e) {
-			}finally {
-				try {
-					rs.close();
-					pstm.close();
-					conn.close();
-				} catch (Exception e2) {
-				}
+		try {
+			conn = getConnection();
+			String sql = "select * from 고객테이블" ;
+			pstm = conn.prepareStatement(sql);
+			rs = pstm.executeQuery();
+			ArrayList<VO> list = new ArrayList<>();
+			while(rs.next()) {
+				VO vo = new VO();
+				vo.set고객아이디(rs.getString(1));
+				vo.set고객이름(rs.getString(2));
+				vo.set나이(rs.getString(3));
+				vo.set등급(rs.getString(4));
+				vo.set직업(rs.getString(5));
+				vo.set적립금( rs.getString(6));
+				list.add(vo);
 			}
-			return null;
+			return list;
+		} catch (Exception e) {
+		} finally {
+			try {
+				rs.close();
+				pstm.close();
+				conn.close();
+			} catch (Exception e2) {
+			}
+		}
+		return null;
 	}
 	
 	public VO getSelectOne(String c_id) {
@@ -69,19 +67,19 @@ public class DAO {
 			String sql = "select * from 고객테이블 where 고객아이디 = ?";
 			pstm = conn.prepareStatement(sql);
 			pstm.setString(1, c_id);
-			rs=pstm.executeQuery();
-			VO vo = new VO();
-			while (rs.next()) {
+			rs = pstm.executeQuery();
+			VO vo  = new VO();
+			while(rs.next()) {
 				vo.set고객아이디(rs.getString(1));
 				vo.set고객이름(rs.getString(2));
 				vo.set나이(rs.getString(3));
 				vo.set등급(rs.getString(4));
 				vo.set직업(rs.getString(5));
-				vo.set적립금(rs.getString(6));
+				vo.set적립금( rs.getString(6));
 			}
 			return vo;
 		} catch (Exception e) {
-		}finally {
+		} finally {
 			try {
 				rs.close();
 				pstm.close();
@@ -95,8 +93,8 @@ public class DAO {
 	public int getInsert(VO vo) {
 		try {
 			conn = getConnection();
-			String sql = "insert into 고객테이블(고객아이디, 고객이름, 나이, 등급, 직업, 적립금) "
-					+ "values(?,?,?,?,?,?)";
+			String sql ="insert into 고객테이블(고객아이디, 고객이름, 나이, 등급, 직업, 적립금 ) "
+					+ " values(?,?,?,?,?,?)";
 			pstm = conn.prepareStatement(sql);
 			pstm.setString(1, vo.get고객아이디());
 			pstm.setString(2, vo.get고객이름());
@@ -107,15 +105,13 @@ public class DAO {
 			
 			result = pstm.executeUpdate();
 			return result;
-			
 		} catch (Exception e) {
-			System.out.println("아이디중복");
-		}finally {
+			System.out.println("아이디 중복");
+		} finally {
 			try {
 				pstm.close();
 				conn.close();
 			} catch (Exception e2) {
-				// TODO: handle exception
 			}
 		}
 		return 0;
@@ -124,22 +120,21 @@ public class DAO {
 	public int getDelete(VO vo) {
 		try {
 			conn = getConnection();
-			String sql = "delete from 고객테이블 where 고객아이디=?";
+			String sql = "delete from 고객테이블 where 고객아이디 = ?";
 			pstm = conn.prepareStatement(sql);
 			pstm.setString(1, vo.get고객아이디());
 			result = pstm.executeUpdate();
-			
 			return result;
 		} catch (Exception e) {
-			// TODO: handle exception
-		}finally {
+		} finally {
 			try {
 				pstm.close();
 				conn.close();
 			} catch (Exception e2) {
-				// TODO: handle exception
 			}
 		}
-		return 0;
+		return 0 ;
 	}
+	
 }
+
