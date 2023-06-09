@@ -115,10 +115,56 @@ public class Ex02_DAO {
 	}
 	// 하나 불러오기
 	public Ex02_VO getSelectOne(Ex02_VO vo) {
+		try {
+			conn = getConnection();
+			String sql = "select * from customer where custid = ?";
+			pstm = conn.prepareStatement(sql);
+			pstm.setString(1, vo.getCustid());
+			rs = pstm.executeQuery();
+			
+			Ex02_VO vo2 = new Ex02_VO();
+			while(rs.next()) {
+				vo2.setCustid(rs.getString(1));
+				vo2.setName(rs.getString(2));
+				vo2.setAddress(rs.getString(3));
+				vo2.setPhone(rs.getString(4));
+			}
+			return vo2;
+		} catch (Exception e) {
+			// TODO: handle exception
+		}finally {
+			try {
+				rs.close();
+				pstm.close();
+				conn.close();
+			} catch (Exception e2) {
+				// TODO: handle exception
+			}
+		}
 		return null;
 	}
 	// 고치기
 	public int getUpdate(Ex02_VO vo) {
+		try {
+			conn = getConnection();
+			String sql = "update customer set name = ?, address = ?, phone = ? where custid=?";
+			pstm = conn.prepareStatement(sql);
+			pstm.setString(1, vo.getName());
+			pstm.setString(2, vo.getAddress());
+			pstm.setString(3, vo.getPhone());
+			pstm.setString(4, vo.getCustid());
+			
+			int result = pstm.executeUpdate();
+			return result;
+		} catch (Exception e) {
+		}finally {
+			try {
+				pstm.close();
+				conn.close();
+				
+			} catch (Exception e2) {
+			}
+		}
 		return 0;
 	}
 	
