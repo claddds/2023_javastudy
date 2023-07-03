@@ -1,7 +1,9 @@
 package network.com.ict.edu9_db;
 
-// customer 테이블의 컬럼명과 일치시키자.
-public class VO {
+import java.io.Serializable;
+
+// customer 테이블의 컬럼명과 일치 시키자. 
+public class VO implements Serializable{
 	private String custid, name, address, phone;
 
 	public String getCustid() {

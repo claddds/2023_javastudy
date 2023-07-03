@@ -2,14 +2,14 @@ package network.com.ict.edu9;
 
 import java.awt.BorderLayout;
 import java.awt.EventQueue;
-import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.JButton;
@@ -21,22 +21,19 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.ScrollPaneConstants;
 
-import jdbc.com.ict.edu5.Ex02_VO;
-import mybatis.com.ict.edu3.DAO;
-import mybatis.com.ict.edu3.VO;
+import network.com.ict.edu9_db.VO;
 
-public class DB_Client extends JFrame implements Runnable{
+public class DB_Client extends JFrame implements Runnable {
 	JPanel jp1, jp2, jp3, jp4, jp5, jp6;
 	JTextField jtf1, jtf2, jtf3, jtf4;
 	JButton jb1, jb2, jb3, jb4;
 	JTextArea jta;
 	JScrollPane jsp;
-	
-	// 접속
-	Socket s = null;
-	ObjectInputStream in = null;
-	ObjectOutputStream out = null;
-	
+
+	Socket s;
+	ObjectOutputStream out;
+	ObjectInputStream in;
+
 	public DB_Client() {
 		super("DB 연동 정보");
 		jp1 = new JPanel(new GridLayout(0, 2));
@@ -56,7 +53,7 @@ public class DB_Client extends JFrame implements Runnable{
 		jb3 = new JButton("삭제");
 		jb4 = new JButton("검색");
 
-		jp1.add(new JLabel("*CUSTID  :  ", JLabel.CENTER));
+		jp1.add(new JLabel("* CUSTID  :  ", JLabel.CENTER));
 		jp1.add(jtf1);
 
 		jp2.add(new JLabel("NAME  :  ", JLabel.CENTER));
@@ -87,90 +84,120 @@ public class DB_Client extends JFrame implements Runnable{
 		add(jp5, BorderLayout.NORTH);
 		add(jsp, BorderLayout.CENTER);
 		add(jp6, BorderLayout.SOUTH);
-		
-		List<VO> list = DAO.getList();
 
 		setSize(600, 400);
 		setLocationRelativeTo(null);
 		setResizable(false);
 		setVisible(true);
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
+
+		// 접속
+		connected();
+
+		addWindowListener(new WindowAdapter() {
+			@Override
+			public void windowClosing(WindowEvent e) {
+				if (s != null) {
+					try {
+						Protocol p = new Protocol();
+						p.setCmd(0);
+						out.writeObject(p);
+						out.flush();
+					} catch (Exception e2) {
+					}
+				} else {
+					closed();
+				}
+			}
+		});
 		
-		jta.setFont(new Font("굴림", Font.PLAIN, 20));
-		
-		// 전체보기
 		jb1.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				try {
+					Protocol p = new Protocol();
+					p.setCmd(1);
+					out.writeObject(p);
+					out.flush();
+				} catch (Exception e2) {
+				}
 				
 			}
 		});
-		
-		// 삽입
 		jb2.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				String custid = jtf1.getText().trim();
-				String name = jtf2.getText().trim();
-				String address = jtf3.getText().trim();
-				String phone = jtf4.getText().trim();
-				
-				// custid가 중복이면 삽입불가
-				
-			}
-		});
-		
-		// 삭제
-		jb3.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-			}
-			
-		});
-		
-		// 검색
-		jb4.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				
+				VO vo = new VO();
+				vo.setName(jtf1.getText().trim());
+				vo.setName(jtf2.getText().trim());
+				vo.setAddress(jtf3.getText().trim());
+				vo.setPhone(jtf4.getText().trim());
+				try {
+					Protocol p = new Protocol();
+					p.setCmd(2);
+					p.setVo(vo);
+					out.writeObject(p);
+					out.flush();
+				}catch (Exception e2) {
+				}
 			}
 		});
 	}
-	
-	public void prn(List<VO> list) {
-		jta.setText("");
-		jta.append("\n\t   회원 전체 정보 \n\n\n");
-		jta.append("   번호\t이름\t주소\t전화번호\n");
-		for (VO k : list) {
-			jta.append("   " + k.getCustid() + "\t");
-			jta.append(k.getName() + "\t");
-			jta.append(k.getAddress() + "\t");
-			jta.append(k.getPhone() + "\n");
-		}
-	}
-	
-	private boolean connected() {
-		boolean value = true;
+
+	// 접속
+	public void connected() {
 		try {
-			s = new Socket("192.168.0.84", 7779);
+			s = new Socket("192.168.0.41", 7780);
 			out = new ObjectOutputStream(s.getOutputStream());
 			in = new ObjectInputStream(s.getInputStream());
 			new Thread(this).start();
-			return value;
 		} catch (Exception e) {
 			System.out.println(e);
 		}
-		return false;
 	}
-	
+
+	// 끝내기
+	public void closed() {
+		try {
+			out.close();
+			in.close();
+			s.close();
+			System.exit(0);
+		} catch (Exception e) {
+		}
+	}
+
 	@Override
 	public void run() {
-		while (true) {
-			
+		esc:while(true) {
+			try {
+				Object obj = in.readObject();
+				if(obj != null) {
+					Protocol p = (Protocol)obj;
+					switch (p.getCmd()) {
+						case 0 : break esc;
+						case 1: 
+							List<VO> list = p.getList();
+							prn(list);
+							break;
+					}
+				}
+			} catch (Exception e) {
+			}
 		}
-		
+		 closed();
 	}
-	
+	public void prn(List<VO> list) {
+		 jta.setText("");
+		 jta.append("\n\t\t\t 회원 전체 정보 \n\n");
+		 jta.append("\t번호\t이름\t주소\t\t전화번호\n");
+		for (VO k : list) {
+			jta.append("\t"+k.getCustid()+"\t");
+			jta.append(k.getName()+"\t");
+			jta.append(k.getAddress()+"\t\t");
+			jta.append(k.getPhone()+"\n");
+		}
+	}
 	public static void main(String[] args) {
 		EventQueue.invokeLater(new Runnable() {
 			@Override
@@ -180,4 +207,3 @@ public class DB_Client extends JFrame implements Runnable{
 		});
 	}
 }
-
